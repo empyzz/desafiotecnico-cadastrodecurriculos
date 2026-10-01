@@ -33,4 +33,15 @@ dd:last-child { margin-bottom: 0; }
 .sucesso { color: #245f41; background: #eaf6ef; border: 1px solid #c7e4d3; }
 .aviso { background: #eef5f9; color: #244e64; border: 1px solid #cddfea; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.formulario { max-width: 800px; }
+.campos { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.campo { display: flex; flex-direction: column; gap: 8px; }
+.inteiro { grid-column: 1 / -1; }
+label { font-size: 14px; font-weight: 600; }
+input, textarea { width: 100%; border: 1px solid #b8c9d1; border-radius: 6px; padding: 11px 12px; color: #203744; background: white; font: inherit; }
+textarea { resize: vertical; }
+[aria-invalid="true"] { border-color: #af3535; }
+.erro-campo { color: #9a2828; font-size: 13px; }
+.acoes { display: flex; align-items: center; gap: 24px; margin-top: 28px; }
+@media(max-width: 640px) { .campos { grid-template-columns: 1fr; } }
 @media(max-width: 640px) { main { margin-top: 28px; padding: 0 16px; } header { padding: 18px 16px; } .titulo { align-items: flex-start; flex-direction: column; } .card { padding: 20px; } .tabela { padding: 0; } }
