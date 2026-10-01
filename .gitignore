@@ -1,0 +1,26 @@
+# Dependências e builds
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+
+# Configuração local (preservar exemplos sem segredos)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+*.tsbuildinfo
+
+# Editores e sistema operacional
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Dados locais do SQL Server
+.sqlserver-data/
