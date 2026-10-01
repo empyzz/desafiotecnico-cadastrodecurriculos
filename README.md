@@ -4,7 +4,7 @@ Aplicação simples para cadastrar candidatos manualmente ou preencher o mesmo f
 
 ## Status
 
-Etapa 1 de 12: estrutura do repositório e documentação inicial. A aplicação ainda não está implementada; os comandos de instalação, execução e testes serão adicionados conforme forem verificados.
+Etapa 2 de 12 concluída: SQL Server executado em Docker, script aplicado duas vezes sem erro e tabela `dbo.Candidatos` confirmada com as sete colunas. A aplicação ainda não está implementada.
 
 ## Escopo
 
@@ -21,10 +21,12 @@ Etapa 1 de 12: estrutura do repositório e documentação inicial. A aplicação
 | Frontend | React, Vite e React Router |
 | Backend | Node.js, Express, mssql, dotenv e cors |
 | PDF | multer e pdf-parse |
-| Banco de dados | SQL Server em Docker |
+| Banco de dados | SQL Server 2022 Developer em Docker |
 | Testes | Vitest, Supertest e React Testing Library |
 
 As versões efetivamente instaladas serão registradas nas próximas etapas, junto dos arquivos de dependências e seus lockfiles.
+
+A imagem configurada é `mcr.microsoft.com/mssql/server:2022-latest`. Essa tag recebe atualizações da linha 2022. Versões verificadas em 01/10/2026: SQL Server 2022 RTM-CU27 (`16.0.4295.3`), Docker Engine `29.8.1` e Docker Compose `5.5.1`. A versão do aplicativo Docker Desktop não foi registrada.
 
 ## Estrutura
 
@@ -33,20 +35,64 @@ frontend/       Interface React
 backend/        API Express, acesso ao banco e testes
 database/       Scripts SQL
 exemplos/       Currículo fictício em PDF
+compose.yaml    SQL Server local e volume persistente
+.env.example    Exemplo de configuração do Docker
 README.md       Configuração, execução e testes
 DESENVOLVIMENTO.md  Decisões, verificações e uso de IA
 ```
 
-## Configuração e execução
+## SQL Server local
+
+Pré-requisitos: Docker Desktop iniciado com containers Linux, Docker Compose v2 ou superior e pelo menos 2 GB de memória disponíveis para o SQL Server. O servidor local usa a porta 1433, que precisa estar livre. Referência: [guia oficial de SQL Server em Docker](https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver16).
+
+Execute os comandos abaixo em PowerShell, na raiz do repositório. O início do container e os comandos SQL foram verificados neste ambiente. Se `.env` já existir, preserve sua configuração em vez de sobrescrevê-la com o exemplo.
+
+1. Copie o exemplo e edite `.env`, definindo uma senha local forte:
+
+   ```powershell
+   Copy-Item .env.example .env
+   notepad .env
+   ```
+
+2. Inicie o servidor e aguarde o healthcheck:
+
+   ```powershell
+   docker compose up -d --wait --wait-timeout 180 sqlserver
+   docker compose ps
+   ```
+
+3. Execute o script para criar o banco `CadastroCurriculos` e a tabela `dbo.Candidatos`:
+
+   ```powershell
+   docker compose exec -T sqlserver sh -c 'export SQLCMDPASSWORD=$MSSQL_SA_PASSWORD; exec /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -i /scripts/001_criar_tabela_candidatos.sql'
+   ```
+
+4. Confirme a tabela e consulte a versão do servidor:
+
+   ```powershell
+   docker compose exec -T sqlserver sh -c 'export SQLCMDPASSWORD=$MSSQL_SA_PASSWORD; exec /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -C -b -W -i /scripts/verificar.sql'
+   ```
+
+   O resultado esperado é uma linha `dbo Candidatos`, as sete colunas e a versão. O script de verificação retorna erro se a tabela estiver ausente. Execute novamente o comando do passo 3 para conferir que o script pode ser reaplicado sem erro. Ele não altera tabelas já existentes.
+
+O volume `sqlserver-data` preserva os dados ao parar o container:
+
+```powershell
+docker compose down
+```
+
+Se o servidor não iniciar, consulte `docker compose logs sqlserver`. Confira a disponibilidade da porta, os recursos do Docker e a política de senha. Após a criação do volume, mudar `.env` não altera a senha já configurada no banco; use a senha original ou altere-a no SQL Server.
+
+A conexão planejada para o backend será `localhost:1433`, banco `CadastroCurriculos`, usuário `sa` e a senha escolhida em `.env`. A configuração de conexão do backend será adicionada na etapa 3. O usuário `sa` e o certificado local confiado via `-C` são utilizados neste ambiente de desenvolvimento.
+
+## Aplicação e testes
 
 A completar nas etapas correspondentes, com comandos verificados para:
 
 1. Instalar os requisitos e dependências.
-2. Iniciar o SQL Server em Docker.
-3. Configurar a conexão a partir de um `.env.example` sem credenciais reais.
-4. Executar `database/001_criar_tabela_candidatos.sql`.
-5. Iniciar o backend e o frontend.
-6. Rodar os testes automatizados.
+2. Configurar a conexão do backend a partir de um `.env.example` sem credenciais reais.
+3. Iniciar o backend e o frontend.
+4. Rodar os testes automatizados.
 
 ## Verificação manual planejada
 
