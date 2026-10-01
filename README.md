@@ -129,7 +129,7 @@ Com o banco configurado e iniciado:
 npm --prefix backend run test:db
 ```
 
-O teste usa `backend/.env`, insere um candidato fictício, consulta lista e detalhes e remove seu próprio registro ao terminar. Execute em uma base de desenvolvimento. Resultado verificado: **29 testes backend, 14 frontend e 1 com SQL Server real**.
+O teste usa `backend/.env`, insere um candidato fictício, consulta lista e detalhes e remove seu próprio registro ao terminar. Execute em uma base de desenvolvimento. Resultado verificado: **29 testes backend, 14 frontend e 1 com SQL Server real**. Esses comandos e o build também passaram em um clone novo, com `npm ci` e um banco criado do zero; o início dos dois servidores e o proxy foram confirmados via HTTP.
 
 Exemplo: [exemplos/curriculo-ficticio.pdf](exemplos/curriculo-ficticio.pdf). Para regenerar:
 
