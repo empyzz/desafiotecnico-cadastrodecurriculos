@@ -1,0 +1,23 @@
+import PDFDocument from 'pdfkit';
+import { createWriteStream } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const doc = new PDFDocument({ size: 'A4', margin: 56 });
+const stream = createWriteStream(fileURLToPath(new URL('../../exemplos/curriculo-ficticio.pdf', import.meta.url)));
+doc.pipe(stream);
+doc.fontSize(24).fillColor('#17394d').text('Ana Luísa Silva');
+doc.moveDown(0.5).fontSize(11).fillColor('#333333').text('ana.silva@example.com');
+doc.text('(11) 98765-4321');
+doc.moveDown(2).fontSize(15).fillColor('#17394d').text('Área de interesse');
+doc.moveDown(0.5).fontSize(11).fillColor('#333333').text('Desenvolvimento web');
+doc.moveDown(2).fontSize(15).fillColor('#17394d').text('Resumo profissional');
+doc.moveDown(0.5).fontSize(11).fillColor('#333333').text('Profissional fictícia com experiência em aplicações React, Node.js e bancos de dados relacionais. Interesse em soluções simples e acessíveis.');
+doc.moveDown(2).fontSize(15).fillColor('#17394d').text('Experiência');
+doc.moveDown(0.5).fontSize(11).fillColor('#333333').text('2023 - 2026 | Desenvolvedora web | Empresa Exemplo');
+doc.moveDown().text('Manutenção de formulários, integração com APIs e testes automatizados.');
+doc.moveDown(2).fontSize(15).fillColor('#17394d').text('Formação');
+doc.moveDown(0.5).fontSize(11).fillColor('#333333').text('Análise e Desenvolvimento de Sistemas | Instituição Exemplo');
+doc.moveDown(3).fontSize(9).fillColor('#666666').text('Dados inteiramente fictícios, destinados a testes de importação.');
+doc.end();
+await new Promise((resolve, reject) => { stream.on('finish', resolve); stream.on('error', reject); });
+console.log('Currículo fictício gerado.');

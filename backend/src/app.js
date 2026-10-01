@@ -4,6 +4,7 @@ import { conectar } from './db.js';
 import * as candidatosRepository from './candidatosRepository.js';
 import { validarCandidato } from './validarCandidato.js';
 import { ErroHttp, tratarErro } from './erro.js';
+import { uploadPdf, extrairCurriculo } from './curriculos.js';
 
 export function criarApp({ repository = candidatosRepository } = {}) {
   const app = express();
@@ -32,6 +33,7 @@ export function criarApp({ repository = candidatosRepository } = {}) {
     const candidato = await repository.inserir(dados);
     res.location(`/api/candidatos/${candidato.id}`).status(201).json(candidato);
   });
+  app.post('/api/curriculos/extrair', uploadPdf, extrairCurriculo);
   app.use((_req, res) => res.status(404).json({ mensagem: 'Rota não encontrada.' }));
   app.use(tratarErro);
   return app;
