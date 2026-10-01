@@ -34,6 +34,8 @@ DESENVOLVIMENTO.md  Decisões e uso de IA
 
 Comandos em PowerShell, na raiz do repositório. Se `.env` já existir, preserve sua senha. Os exemplos contêm apenas valores fictícios; arquivos `.env` são ignorados pelo Git.
 
+Antes de reinstalar dependências com `npm ci`, encerre o servidor correspondente com `Ctrl+C`. No Windows, o Vite em execução pode manter arquivos nativos de `node_modules` bloqueados. Só inicie o servidor depois que a instalação terminar sem erro.
+
 ### 1. SQL Server
 
 ```powershell
@@ -185,6 +187,7 @@ Para os containers, preservando o volume. Reinicie com `up`. `docker compose dow
 - Login falha: `DB_PASSWORD` deve ser a senha usada ao criar o volume. Mudar `.env` depois não altera a senha do banco existente.
 - API falha: confira o `.env` do backend e a execução do script SQL.
 - Porta ocupada: pare o processo/container correspondente antes de iniciar outra cópia.
+- `EPERM` durante `npm ci` no frontend: encerre o Vite e repita `npm --prefix frontend ci`. Uma instalação interrompida pode deixar o comando `vite` indisponível; a reinstalação concluída restaura as dependências.
 
 ## Limitações
 
