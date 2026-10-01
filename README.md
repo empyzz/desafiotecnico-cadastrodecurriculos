@@ -191,6 +191,6 @@ Para os containers, preservando o volume. Reinicie com `up`. `docker compose dow
 
 ## Limitações
 
-Sem OCR: PDFs digitalizados como imagem, protegidos ou com layouts incomuns podem não fornecer texto útil. Regras de extração podem confundir títulos com nomes ou números com telefone; revise as sugestões. Apenas nome, e-mail e telefone são extraídos, enquanto área e resumo são manuais.
+Sem OCR: PDFs digitalizados como imagem, protegidos ou com layouts incomuns podem não fornecer texto útil. A extração ignora intervalos de anos como `2018-2022` e números dentro de e-mails ao procurar telefones. A identificação do nome ainda pode confundir títulos ou cidades, como `Desenvolvedor Full Stack` ou `São Paulo PR`, com o nome da pessoa; revise as sugestões. Apenas nome, e-mail e telefone são identificados automaticamente, enquanto área e resumo são manuais.
 
 Aplicação local sem login, busca, paginação, edição ou exclusão. Veja [DESENVOLVIMENTO.md](DESENVOLVIMENTO.md) para decisões, participação da IA e evidências de verificação.
