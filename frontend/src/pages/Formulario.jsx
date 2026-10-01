@@ -17,6 +17,35 @@ export default function Formulario() {
   const [erros, setErros] = useState({});
   const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
+  const [importando, setImportando] = useState(false);
+  const [erroPdf, setErroPdf] = useState('');
+  const [mensagemPdf, setMensagemPdf] = useState('');
+  async function importar(event) {
+    const input = event.target;
+    const arquivo = input.files?.[0];
+    setErroPdf(''); setMensagemPdf('');
+    if (!arquivo) return;
+    if (!/\.pdf$/i.test(arquivo.name) || (arquivo.type && arquivo.type !== 'application/pdf')) {
+      setErroPdf('Envie um arquivo PDF de até 5 MB. Você pode continuar manualmente.');
+      input.value = ''; return;
+    }
+    if (arquivo.size > 5 * 1024 * 1024) {
+      setErroPdf('O PDF deve ter até 5 MB. Você pode continuar manualmente.');
+      input.value = ''; return;
+    }
+    setImportando(true);
+    try {
+      const resultado = await api.extrair(arquivo);
+      setDados(atual => ({ ...atual,
+        nomeCompleto: atual.nomeCompleto.trim() ? atual.nomeCompleto : resultado.dados.nomeCompleto || '',
+        email: atual.email.trim() ? atual.email : resultado.dados.email || '',
+        telefone: atual.telefone.trim() ? atual.telefone : resultado.dados.telefone || '',
+      }));
+      setErros({});
+      setMensagemPdf('PDF lido. Revise os dados e preencha as informações que faltam.');
+    } catch (error) { setErroPdf(`${error.message} O cadastro manual continua disponível.`); }
+    finally { setImportando(false); input.value = ''; }
+  }
   function alterar(event) {
     const { name, value } = event.target;
     setDados(atual => ({ ...atual, [name]: value }));
@@ -40,6 +69,15 @@ export default function Formulario() {
     <p className="sobretitulo">Recrutamento</p><h1>Novo candidato</h1>
     <p>Preencha os dados abaixo. Nome completo e e-mail são obrigatórios.</p>
     <form className="card formulario" onSubmit={salvar} noValidate>
+      <section className="importacao" aria-labelledby="titulo-pdf">
+        <h2 id="titulo-pdf">Importar currículo <span className="opcional">Opcional</span></h2>
+        <p>Envie um PDF de até 5 MB para sugerir nome, e-mail e telefone. Campos já preenchidos serão preservados.</p>
+        <label htmlFor="curriculo">Currículo em PDF</label>
+        <input id="curriculo" type="file" accept="application/pdf,.pdf" onChange={importar} disabled={importando || salvando} />
+        {importando && <p role="status">Lendo currículo…</p>}
+        {erroPdf && <p className="erro" role="alert">{erroPdf}</p>}
+        {mensagemPdf && <p className="aviso" role="status">{mensagemPdf}</p>}
+      </section>
       {erro && <p className="erro" role="alert">{erro}</p>}
       <div className="campos">{campos.map(campo => {
         const Tag = campo.textarea ? 'textarea' : 'input';
@@ -49,7 +87,7 @@ export default function Formulario() {
           {erros[campo.nome] && <span className="erro-campo" id={`${campo.nome}-erro`}>{erros[campo.nome]}</span>}
         </div>;
       })}</div>
-      <div className="acoes"><button disabled={salvando}>{salvando ? 'Salvando…' : 'Salvar candidato'}</button><Link to="/">Cancelar</Link></div>
+      <div className="acoes"><button disabled={salvando || importando}>{salvando ? 'Salvando…' : 'Salvar candidato'}</button><Link to="/">Cancelar</Link></div>
     </form>
   </>;
 }

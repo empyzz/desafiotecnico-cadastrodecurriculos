@@ -43,5 +43,10 @@ textarea { resize: vertical; }
 [aria-invalid="true"] { border-color: #af3535; }
 .erro-campo { color: #9a2828; font-size: 13px; }
 .acoes { display: flex; align-items: center; gap: 24px; margin-top: 28px; }
+.importacao { padding-bottom: 24px; margin-bottom: 28px; border-bottom: 1px solid #dbe4e8; }
+.importacao p { color: #526774; margin: 10px 0 16px; font-size: 14px; }
+.importacao .erro { color: #8b2525; }
+.importacao label { display: block; margin-bottom: 8px; }
+.opcional { font-size: 11px; color: #526774; background: #edf2f4; padding: 4px 8px; border-radius: 20px; vertical-align: middle; font-weight: 500; }
 @media(max-width: 640px) { .campos { grid-template-columns: 1fr; } }
 @media(max-width: 640px) { main { margin-top: 28px; padding: 0 16px; } header { padding: 18px 16px; } .titulo { align-items: flex-start; flex-direction: column; } .card { padding: 20px; } .tabela { padding: 0; } }
