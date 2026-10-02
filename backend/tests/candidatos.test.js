@@ -35,5 +35,9 @@ describe('API', () => {
     expect(res.status).toBe(500);
     expect(JSON.stringify(res.body)).not.toContain('senha-secreta');
   });
-  it('trata JSON inválido', async () => expect((await request(app).post('/api/candidatos').set('Content-Type', 'application/json').send('{')).status).toBe(400));
+  it('trata JSON inválido', async () =>
+    expect(
+      (await request(app).post('/api/candidatos').set('Content-Type', 'application/json').send('{'))
+        .status,
+    ).toBe(400));
 });

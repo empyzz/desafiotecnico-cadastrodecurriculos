@@ -12,8 +12,10 @@ const server = criarApp().listen(port, (error) => {
 });
 
 for (const signal of ['SIGINT', 'SIGTERM']) {
-  process.on(signal, () => server.close(async () => {
-    await fecharConexao();
-    process.exit(0);
-  }));
+  process.on(signal, () =>
+    server.close(async () => {
+      await fecharConexao();
+      process.exit(0);
+    }),
+  );
 }

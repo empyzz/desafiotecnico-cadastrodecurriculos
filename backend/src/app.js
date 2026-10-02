@@ -22,14 +22,16 @@ export function criarApp({ repository = candidatosRepository } = {}) {
   app.get('/api/candidatos', async (_req, res) => res.json(await repository.listar()));
   app.get('/api/candidatos/:id', async (req, res) => {
     const id = Number(req.params.id);
-    if (!/^\d+$/.test(req.params.id) || !Number.isInteger(id) || id < 1 || id > 2147483647) throw new ErroHttp(400, 'Identificador de candidato inválido.');
+    if (!/^\d+$/.test(req.params.id) || !Number.isInteger(id) || id < 1 || id > 2147483647)
+      throw new ErroHttp(400, 'Identificador de candidato inválido.');
     const candidato = await repository.buscarPorId(id);
     if (!candidato) throw new ErroHttp(404, 'Candidato não encontrado.');
     res.json(candidato);
   });
   app.post('/api/candidatos', async (req, res) => {
     const { dados, erros, valido } = validarCandidato(req.body);
-    if (!valido) return res.status(400).json({ mensagem: 'Confira os campos do formulário.', erros });
+    if (!valido)
+      return res.status(400).json({ mensagem: 'Confira os campos do formulário.', erros });
     const candidato = await repository.inserir(dados);
     res.location(`/api/candidatos/${candidato.id}`).status(201).json(candidato);
   });

@@ -6,20 +6,25 @@ const colunas = `Id AS id, NomeCompleto AS nomeCompleto, Email AS email,
 
 export async function listar() {
   const pool = await conectar();
-  const result = await pool.request().query(`SELECT ${colunas} FROM dbo.Candidatos ORDER BY CriadoEm DESC, Id DESC`);
+  const result = await pool
+    .request()
+    .query(`SELECT ${colunas} FROM dbo.Candidatos ORDER BY CriadoEm DESC, Id DESC`);
   return result.recordset;
 }
 
 export async function buscarPorId(id) {
   const pool = await conectar();
-  const result = await pool.request().input('id', sql.Int, id)
+  const result = await pool
+    .request()
+    .input('id', sql.Int, id)
     .query(`SELECT ${colunas} FROM dbo.Candidatos WHERE Id = @id`);
   return result.recordset[0] || null;
 }
 
 export async function inserir(dados) {
   const pool = await conectar();
-  const result = await pool.request()
+  const result = await pool
+    .request()
     .input('nome', sql.NVarChar(200), dados.nomeCompleto)
     .input('email', sql.NVarChar(254), dados.email)
     .input('telefone', sql.NVarChar(30), dados.telefone || null)
