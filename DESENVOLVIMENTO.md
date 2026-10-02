@@ -40,7 +40,7 @@ As tecnologias e versões efetivamente utilizadas estão no README e nos arquivo
 
 ## Participação da IA
 
-Usei o Codex, da OpenAI, com GPT-6 na sessão principal de desenvolvimento. A identificação exata do modelo da etapa inicial de planejamento não ficou registrada.
+Usei o Codex, da OpenAI, com GPT-6.1 Sol na sessão principal de desenvolvimento.
 
 A IA teve participação substancial na implementação. Usei seu apoio para estruturar a solução, gerar código do backend e do frontend, criar testes e documentação, executar verificações e analisar falhas. O código foi desenvolvido com essa assistência; a IA não faz parte da aplicação entregue, que extrai os dados do PDF por regras locais de texto.
 
