@@ -9,6 +9,8 @@ it('importa o PDF fictício', async () => {
   const res = await request(app).post(rota).attach('curriculo', fileURLToPath(new URL('../../exemplos/curriculo-ficticio.pdf', import.meta.url)));
   expect(res.status).toBe(200);
   expect(res.body.dados).toEqual({ nomeCompleto: 'Ana Luísa Silva', email: 'ana.silva@example.com', telefone: '(11) 98765-4321' });
+  expect(res.body.texto).toContain('Resumo profissional');
+  expect(res.body.texto).toContain('ana.silva@example.com');
 });
 it('exige arquivo', async () => expect((await request(app).post(rota)).status).toBe(400));
 it('rejeita tipo incorreto', async () => expect((await request(app).post(rota).attach('curriculo', Buffer.from('texto'), 'curriculo.txt')).status).toBe(400));

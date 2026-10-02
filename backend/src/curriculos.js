@@ -21,7 +21,7 @@ export async function extrairCurriculo(req, res) {
     const resultado = await parser.getText();
     const text = resultado.pages.map(page => page.text).join('\n');
     if (!text.trim()) throw new Error('Sem texto');
-    res.json({ dados: extrairDados(text), mensagem: 'PDF lido. Revise os dados antes de salvar.' });
+    res.json({ dados: extrairDados(text), texto: text, mensagem: 'PDF lido. Revise os dados antes de salvar.' });
   } catch {
     throw new ErroHttp(422, 'Não foi possível ler o texto do PDF. Preencha o formulário manualmente.');
   } finally {

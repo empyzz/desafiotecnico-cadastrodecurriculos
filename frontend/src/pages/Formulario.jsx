@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { validarFormulario } from '../validarFormulario.js';
@@ -20,11 +20,20 @@ export default function Formulario() {
   const [importando, setImportando] = useState(false);
   const [erroPdf, setErroPdf] = useState('');
   const [mensagemPdf, setMensagemPdf] = useState('');
+  const [pdfSelecionado, setPdfSelecionado] = useState(null);
+  const [textoExtraido, setTextoExtraido] = useState('');
+  useEffect(() => {
+    return () => {
+      if (pdfSelecionado) URL.revokeObjectURL(pdfSelecionado.url);
+    };
+  }, [pdfSelecionado]);
   async function importar(event) {
     const input = event.target;
     const arquivo = input.files?.[0];
     setErroPdf(''); setMensagemPdf('');
     if (!arquivo) return;
+    setPdfSelecionado(null);
+    setTextoExtraido('');
     if (!/\.pdf$/i.test(arquivo.name) || (arquivo.type && arquivo.type !== 'application/pdf')) {
       setErroPdf('Envie um arquivo PDF de até 5 MB. Você pode continuar manualmente.');
       input.value = ''; return;
@@ -33,9 +42,11 @@ export default function Formulario() {
       setErroPdf('O PDF deve ter até 5 MB. Você pode continuar manualmente.');
       input.value = ''; return;
     }
+    setPdfSelecionado({ nome: arquivo.name, url: URL.createObjectURL(arquivo) });
     setImportando(true);
     try {
       const resultado = await api.extrair(arquivo);
+      setTextoExtraido(resultado.texto || '');
       setDados(atual => ({ ...atual,
         nomeCompleto: atual.nomeCompleto.trim() ? atual.nomeCompleto : resultado.dados.nomeCompleto || '',
         email: atual.email.trim() ? atual.email : resultado.dados.email || '',
@@ -77,6 +88,7 @@ export default function Formulario() {
         {importando && <p role="status">Lendo currículo…</p>}
         {erroPdf && <p className="erro" role="alert">{erroPdf}</p>}
         {mensagemPdf && <p className="aviso" role="status">{mensagemPdf}</p>}
+        {pdfSelecionado && <p><a href={pdfSelecionado.url} target="_blank" rel="noopener noreferrer">Abrir PDF: {pdfSelecionado.nome}</a></p>}
       </section>
       {erro && <p className="erro" role="alert">{erro}</p>}
       <div className="campos">{campos.map(campo => {
@@ -87,6 +99,12 @@ export default function Formulario() {
           {erros[campo.nome] && <span className="erro-campo" id={`${campo.nome}-erro`}>{erros[campo.nome]}</span>}
         </div>;
       })}</div>
+      {textoExtraido && <section className="texto-extraido" aria-labelledby="titulo-texto">
+        <h2 id="titulo-texto">Texto extraído do currículo</h2>
+        <p>Copie os trechos que precisar e cole nos campos acima. Confira as informações no PDF original.</p>
+        <label htmlFor="texto-extraido">Texto disponível para copiar</label>
+        <textarea id="texto-extraido" value={textoExtraido} readOnly rows={8} />
+      </section>}
       <div className="acoes"><button disabled={salvando || importando}>{salvando ? 'Salvando…' : 'Salvar candidato'}</button><Link to="/">Cancelar</Link></div>
     </form>
   </>;

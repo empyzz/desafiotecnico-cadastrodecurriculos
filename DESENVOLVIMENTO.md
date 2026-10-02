@@ -31,6 +31,7 @@ Também registrei separadamente as correções do tratamento de PDFs no Git e da
 - **Script SQL reaplicável:** o script cria o banco e a tabela se estiverem ausentes, sem apagar registros existentes. Usei UTC na data de criação. Não defini unicidade de e-mail, pois não era um requisito do desafio.
 - **PDF processado em memória:** usei multer para receber um único PDF de até 5 MB e pdf-parse para extrair o texto. O backend confere extensão, tipo, tamanho e assinatura. O arquivo não é armazenado e o parser é liberado após a leitura.
 - **Extração por regras de texto:** separei a identificação dos dados em uma função pura, facilitando os testes. Ela procura nome, e-mail e telefone e retorna vazio para informações não identificadas. As sugestões precisam de revisão.
+- **Consulta durante o preenchimento:** acrescentei um link local para abrir o PDF e uma área somente de leitura com o texto extraído, permitindo copiar trechos para os campos. O link não exige armazenamento no servidor e é liberado ao substituir o arquivo ou sair do formulário.
 - **Preservação dos dados manuais:** a importação preenche somente campos vazios, permitindo corrigir as sugestões. Uma falha na leitura não apaga o formulário nem impede o cadastro manual.
 - **Interface simples:** usei JavaScript, CSS comum e Vite, sem biblioteca de componentes ou estado global. O frontend encaminha `/api` ao backend por proxy durante o desenvolvimento.
 - **Tratamento central de erros:** usei um middleware para mensagens consistentes, sem expor detalhes internos ou credenciais.
@@ -62,6 +63,7 @@ Defini a direção do projeto e usei a IA para desenvolver a implementação e a
 5. **Portas ocupadas:** processos de desenvolvimento permaneceram ativos após o encerramento dos terminais. Foi necessário parar os processos correspondentes antes de iniciar a cópia de verificação.
 6. **Ferramentas de verificação:** usei `docker compose config --quiet` para validar o Compose e o renderizador de pdf-parse para inspecionar o PDF, evitando instalar dependências adicionais apenas para essas verificações.
 7. **Inspeção da interface:** a automação de navegador não estava disponível na sessão. Mantive essa verificação visual como pendência, sem confundi-la com os testes automatizados dos componentes.
+8. **Identificação dos contatos:** melhorei a extração para ignorar intervalos de anos e números dentro de e-mails, além de remover os contatos antes de testar uma linha como nome. Acrescentei testes para contatos na mesma linha, nomes explícitos e diferentes formatos de telefone. Títulos e cidades ainda podem ser confundidos com nomes pela heurística.
 
 Mantive OCR, armazenamento de PDFs e extração com IA fora do escopo para preservar a simplicidade da solução.
 
@@ -70,9 +72,9 @@ Mantive OCR, armazenamento de PDFs e extração com IA fora do escopo para prese
 As verificações foram executadas com auxílio da IA:
 
 - **Banco:** validação do Compose, container saudável, execução do script de criação duas vezes sem erro e confirmação das sete colunas. SQL Server retornou a versão `16.0.4295.3`.
-- **Backend:** 29 testes passaram, cobrindo validação, limites, consultas, candidato inexistente, ID inválido, JSON inválido, extração e erros de upload. A importação do PDF fictício retornou os contatos esperados.
+- **Backend:** 43 testes passaram, cobrindo validação, limites, consultas, candidato inexistente, ID inválido, JSON inválido, extração e erros de upload. A importação do PDF fictício retornou os contatos esperados e o texto para consulta.
 - **SQL Server real:** um teste de integração passou, verificando healthcheck, cadastro, listagem e detalhes. O teste remove seu próprio registro ao terminar.
-- **Frontend:** 14 testes passaram, cobrindo cadastro manual, validação, sugestões editáveis, preservação de dados já digitados, continuidade após erro no PDF e estados de listagem e detalhes.
+- **Frontend:** 18 testes passaram, cobrindo cadastro manual, validação, sugestões editáveis, preservação de dados já digitados, continuidade após erro no PDF, link local do documento, texto para cópia e estados de listagem e detalhes.
 - **Build:** o build de produção do frontend passou.
 - **Fluxos HTTP:** com os servidores em execução, foram verificados cadastro sem PDF, importação, correção dos dados antes de salvar, listagem, validação, resposta 404 e proxy Vite.
 - **Persistência:** os dois candidatos fictícios da verificação permaneceram após reiniciar e recriar o container usando o mesmo volume. Foram mantidos no banco local como demonstração; não são dados iniciais do repositório.

@@ -131,7 +131,7 @@ Com o banco configurado e iniciado:
 npm --prefix backend run test:db
 ```
 
-O teste usa `backend/.env`, insere um candidato fictício, consulta lista e detalhes e remove seu próprio registro ao terminar. Execute em uma base de desenvolvimento. Resultado verificado: **29 testes backend, 14 frontend e 1 com SQL Server real**. Esses comandos e o build também passaram em um clone novo, com `npm ci` e um banco criado do zero; o início dos dois servidores e o proxy foram confirmados via HTTP.
+O teste usa `backend/.env`, insere um candidato fictício, consulta lista e detalhes e remove seu próprio registro ao terminar. Execute em uma base de desenvolvimento. Resultado atual: **43 testes backend, 18 frontend e 1 com SQL Server real**. A versão inicial também foi verificada em um clone novo, com `npm ci` e um banco criado do zero; o início dos dois servidores e o proxy foram confirmados via HTTP.
 
 Exemplo: [exemplos/curriculo-ficticio.pdf](exemplos/curriculo-ficticio.pdf). Para regenerar:
 
@@ -143,7 +143,7 @@ node backend/scripts/gerarExemplo.js
 
 1. Na listagem, clique em **Novo candidato**, salve nome e e-mail sem PDF e confira sucesso, listagem e detalhes.
 2. Tente nome vazio e e-mail inválido; confira as mensagens junto dos campos.
-3. Importe o PDF fictício no mesmo formulário, corrija um valor sugerido e salve. Campos já digitados são preservados.
+3. Importe o PDF fictício no mesmo formulário, corrija um valor sugerido e salve. Campos já digitados são preservados. Use o link para abrir o PDF original em outra aba e a área abaixo dos campos para copiar trechos do texto extraído para o resumo ou a área de interesse.
 4. Teste outro tipo de arquivo, PDF maior que 5 MB e PDF corrompido. Após o erro, conclua o cadastro manual.
 5. Confira lista vazia num banco novo, carregamento, erro com backend parado e detalhes de um ID inexistente.
 6. Reinicie os processos e o container e confira a persistência.
@@ -158,7 +158,7 @@ As regras e estados têm cobertura automatizada. Os fluxos reais e o proxy Vite 
 | GET | `/api/candidatos` | 200, lista |
 | GET | `/api/candidatos/:id` | 200; 404 se ausente; 400 se ID inválido |
 | POST | `/api/candidatos` | 201; 400 com `mensagem` e `erros` por campo |
-| POST | `/api/curriculos/extrair` | 200 com `dados` e `mensagem`; 400 para arquivo inválido; 422 para ilegível/sem texto |
+| POST | `/api/curriculos/extrair` | 200 com `dados`, `texto` e `mensagem`; 400 para arquivo inválido; 422 para ilegível/sem texto |
 
 ```json
 {
@@ -172,7 +172,7 @@ As regras e estados têm cobertura automatizada. Os fluxos reais e o proxy Vite 
 
 Nome e e-mail são obrigatórios, espaços externos são removidos e o e-mail deve ter formato válido. Limites: nome 200, e-mail 254, telefone 30, área 150 e resumo 10.000 caracteres. Opcionais aceitam vazio; não há requisito de e-mail único.
 
-Upload: `multipart/form-data`, campo `curriculo`, um único `.pdf` de tipo `application/pdf`, até **5 × 1024 × 1024 bytes**. O backend confere extensão, tipo, tamanho e assinatura antes da leitura. O arquivo não é armazenado.
+Upload: `multipart/form-data`, campo `curriculo`, um único `.pdf` de tipo `application/pdf`, até **5 × 1024 × 1024 bytes**. O backend confere extensão, tipo, tamanho e assinatura antes da leitura. O arquivo não é armazenado. O link do formulário abre o arquivo selecionado localmente e fica disponível apenas enquanto o formulário estiver aberto; ele não é salvo no cadastro.
 
 ## Persistência e problemas comuns
 

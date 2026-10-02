@@ -48,5 +48,9 @@ textarea { resize: vertical; }
 .importacao .erro { color: #8b2525; }
 .importacao label { display: block; margin-bottom: 8px; }
 .opcional { font-size: 11px; color: #526774; background: #edf2f4; padding: 4px 8px; border-radius: 20px; vertical-align: middle; font-weight: 500; }
+.texto-extraido { margin-top: 28px; padding-top: 24px; border-top: 1px solid #dbe4e8; }
+.texto-extraido p { font-size: 14px; color: #526774; }
+.texto-extraido label { display: block; margin-bottom: 8px; }
+.texto-extraido textarea { background: #f8fafb; line-height: 1.6; }
 @media(max-width: 640px) { .campos { grid-template-columns: 1fr; } }
 @media(max-width: 640px) { main { margin-top: 28px; padding: 0 16px; } header { padding: 18px 16px; } .titulo { align-items: flex-start; flex-direction: column; } .card { padding: 20px; } .tabela { padding: 0; } }

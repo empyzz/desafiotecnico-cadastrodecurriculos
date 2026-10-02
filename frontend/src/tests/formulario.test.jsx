@@ -1,4 +1,4 @@
-import { beforeEach, it, expect, vi } from 'vitest';
+import { beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
@@ -6,6 +6,13 @@ import App from '../App.jsx';
 import { api } from '../api.js';
 vi.mock('../api.js', () => ({ api: { listar: vi.fn(), buscarPorId: vi.fn(), inserir: vi.fn(), extrair: vi.fn() } }));
 beforeEach(() => { vi.resetAllMocks(); api.listar.mockResolvedValue([]); api.inserir.mockResolvedValue({ id: 1 }); });
+beforeEach(() => {
+  vi.stubGlobal('URL', class extends URL {
+    static createObjectURL = vi.fn(() => 'blob:curriculo-teste');
+    static revokeObjectURL = vi.fn();
+  });
+});
+afterEach(() => vi.unstubAllGlobals());
 function iniciar() { render(<MemoryRouter initialEntries={['/candidatos/novo']}><App /></MemoryRouter>); return userEvent.setup(); }
 const nome = () => screen.getByLabelText('Nome completo', { exact: false });
 const email = () => screen.getByLabelText('E-mail', { exact: false });
@@ -74,4 +81,41 @@ it('exibe erro de validação retornado pelo backend', async () => {
   await user.click(screen.getByRole('button', { name: 'Salvar candidato' }));
   expect(await screen.findByText('E-mail rejeitado pelo servidor.')).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Salvar candidato' })).toBeEnabled();
+});
+it('mostra link do PDF e texto somente para leitura e cópia', async () => {
+  api.extrair.mockResolvedValue({ dados: { nomeCompleto: '', email: '', telefone: '' }, texto: 'Resumo profissional\nExperiência com React.' });
+  const user = iniciar();
+  await user.upload(pdf(), new File(['%PDF-'], 'curriculo.pdf', { type: 'application/pdf' }));
+  const texto = await screen.findByLabelText('Texto disponível para copiar');
+  expect(texto).toHaveValue('Resumo profissional\nExperiência com React.');
+  expect(texto).toHaveAttribute('readonly');
+  const link = screen.getByRole('link', { name: 'Abrir PDF: curriculo.pdf' });
+  expect(link).toHaveAttribute('href', 'blob:curriculo-teste');
+  expect(link).toHaveAttribute('target', '_blank');
+});
+it('mantém acesso ao PDF quando a leitura falha', async () => {
+  api.extrair.mockRejectedValue(new Error('PDF sem texto.'));
+  const user = iniciar();
+  await user.upload(pdf(), new File(['%PDF-'], 'imagem.pdf', { type: 'application/pdf' }));
+  await screen.findByRole('alert');
+  expect(screen.getByRole('link', { name: 'Abrir PDF: imagem.pdf' })).toBeInTheDocument();
+  expect(screen.queryByLabelText('Texto disponível para copiar')).not.toBeInTheDocument();
+});
+it('libera o link local ao sair do formulário', async () => {
+  api.extrair.mockResolvedValue({ dados: {}, texto: 'Texto' });
+  const user = iniciar();
+  await user.upload(pdf(), new File(['%PDF-'], 'curriculo.pdf', { type: 'application/pdf' }));
+  await screen.findByLabelText('Texto disponível para copiar');
+  await user.click(screen.getByRole('link', { name: 'Cancelar' }));
+  expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:curriculo-teste');
+});
+it('remove o texto anterior ao tentar ler outro PDF que falha', async () => {
+  api.extrair.mockResolvedValueOnce({ dados: {}, texto: 'Texto anterior' }).mockRejectedValueOnce(new Error('PDF ilegível.'));
+  const user = iniciar();
+  await user.upload(pdf(), new File(['%PDF-'], 'primeiro.pdf', { type: 'application/pdf' }));
+  await screen.findByLabelText('Texto disponível para copiar');
+  await user.upload(pdf(), new File(['%PDF-'], 'segundo.pdf', { type: 'application/pdf' }));
+  await screen.findByRole('alert');
+  expect(screen.queryByLabelText('Texto disponível para copiar')).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: 'Abrir PDF: segundo.pdf' })).toBeInTheDocument();
 });
